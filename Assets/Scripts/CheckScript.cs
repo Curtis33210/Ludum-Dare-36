@@ -11,14 +11,16 @@ public class CheckScript : MonoBehaviour {
         get { return test1; }
         set
         {
-            test1 = value;
+            if (value > 0)
+            {
+                test1 = value;
+            }
         }
     }
 
 	// Use this for initialization
 	void Start () {
         Debug.Log("Hello World");
-        test = 10;
 	}
 	 
 	// Update is called once per frame
