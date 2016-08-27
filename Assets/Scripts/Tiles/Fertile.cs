@@ -1,46 +1,52 @@
 ﻿using UnityEngine;
 using System.Collections.Generic;
 
+public enum FertileStatus
+{
+    BurntStatus,
+    HoeStatus,
+    PloughStatus,
+    IrrigationStatus,
+    AqueductStatus,
+    //CropRotationStatus, // Not a huge fan of this.
+    Length = AqueductStatus + 1
+}
+
 public class Fertile : Tile
 {
     [SerializeField]
     private float _baseFetilityLevel;
 
     [SerializeField]
-    private float _fertilityModifiers;
+    private float _fertilityModifier;
 
     [SerializeField]
-    public float _burntStatus; //1 or 0 not bool because need for math (less if statements for you)
+    private int[] _statusModifiers;
 
     [SerializeField]
-    public float _hoeStatus; //1 or 0 not bool because need for math (less if statements for you)
+    private Plant _previousCrop;
 
     [SerializeField]
-    public float _ploughStatus;//1 or 0 not bool because need for math (less if statements for you)
-
-    [SerializeField]
-    public float _irrigationStatus;//1 or 0 not bool because need for math (less if statements for you)
-
-    [SerializeField]
-    public float _aqueductStatus;//1 or 0 not bool because need for math (less if statements for you)
-
-    [SerializeField]
-    public float _cropRotationStatus = 1 ;//1 or 0 not bool because need for math (less if statements for you)
-
-    [SerializeField]
-    private string _previousCrop;
-
-    [SerializeField]
-    private string _currentCrop;
+    private Plant _currentCrop;
 
     private WaterChannel _waterSource;
 
-    private int _waterLevel;
+    [SerializeField]
+    private int _targetWaterAbsorbtion;
+
+    [SerializeField]
+    private int _currentWaterLevel;
+
+    private void Awake() {
+        CheckforWaterSource();
+    }
 
     private void Start() {
-        CheckforWaterSource();
-        checkCropRotation();
-        _fertilityModifiers = (_burntStatus * 0.25f + _hoeStatus * 0.05f + _ploughStatus * 0.10f + _irrigationStatus * 0.15f + _aqueductStatus * 0.20f)*_cropRotationStatus;
+        _statusModifiers = new int[(int)FertileStatus.Length];
+        //checkCropRotation();
+        _fertilityModifier = (_statusModifiers[(int)FertileStatus.BurntStatus] * 0.25f + _statusModifiers[(int)FertileStatus.HoeStatus] * 0.05f + _statusModifiers[(int)FertileStatus.BurntStatus] * 0.10f +
+                            _statusModifiers[(int)FertileStatus.IrrigationStatus] * 0.15f + _statusModifiers[(int)FertileStatus.AqueductStatus] * 0.20f)* _statusModifiers[(int)FertileStatus.AqueductStatus];
+
        // string  test = "hoeStatus";
        // int value = 1;
         //changeModifiers(test, value);
@@ -49,58 +55,36 @@ public class Fertile : Tile
 
     public float getFertilityModifier()
     {
-        return _fertilityModifiers;
+        return _fertilityModifier;
     }
-    public void changeModifiers(string status, int value){ 
-        //external editting of modifiers (tech tree stuff so i'm clueless as to where exactly you want this)
-        if (status.Equals("hoeStatus"))
-        {
-            _hoeStatus = 1;
-            // Debug.LogError("hoeStatus is 1");
-        }
-        else if (status.Equals("ploughStatus"))
-        {
-            _ploughStatus = 1;
-        }
-        else if (status.Equals("irrigationStatus"))
-        {
-            _irrigationStatus = 1;
-        }
-        else if (status.Equals("aqueductStatus"))
-        {
-            _aqueductStatus = 1;
-        }
-        else if (status.Equals("burntStatus"))
-        {
-            _burntStatus = 1;
-        }
+    public void changeModifiers(FertileStatus status, int value){
+        _statusModifiers[(int)status] = value;
     }
     //Here's the if statements you know and love
-    
-        public void toggleCropRotation()
-    {
+
+    public void toggleCropRotation() {
         _previousCrop = _currentCrop;
     }
 
-    public void setCurrentCrop(string cropName)
+    public void setCurrentCrop(Plant cropType)
     {
-        _currentCrop = cropName;
+        _currentCrop = cropType;
     }
 
-    private void checkCropRotation()
-    {
-        if (_previousCrop != null)
-        {
-            if (_currentCrop.Equals(_previousCrop))
-            {
-                _cropRotationStatus *= 0.9f;
-            }
-            else
-            {
-                _cropRotationStatus = 1;
-            }
-        }
-    }
+    //private void checkCropRotation()
+    //{
+    //    if (_previousCrop != null)
+    //    {
+    //        if (_currentCrop.Equals(_previousCrop))
+    //        {
+    //            _cropRotationStatus *= 0.9f;
+    //        }
+    //        else
+    //        {
+    //            _cropRotationStatus = 1;
+    //        }
+    //    }
+    //}
     
     private void CheckforWaterSource() {
         // Up
@@ -114,9 +98,26 @@ public class Fertile : Tile
 
         if (raycast.collider != null)
             _waterSource = raycast.transform.GetComponent<WaterChannel>();
+
+        Debug.Log(_waterSource);
     }
-    public int getFertileWaterPercentage()
-    {
-        return _waterSource.getPercentage();
+
+    private void Updater() {
+        if (_currentWaterLevel < _targetWaterAbsorbtion) {
+            AbsorbWater();
+        }
+    }
+
+    public int TakeWater(int amount) { // Don't like this naming. This is for plants to take water from the tile
+        if (amount > _currentWaterLevel) {
+            return _currentWaterLevel;
+        }
+
+        _currentWaterLevel -= amount;
+        return amount;
+    }
+
+    public void AbsorbWater() { // This is for the fertile to absorb water from the water source
+        _waterSource.TakeWater(_targetWaterAbsorbtion - _currentWaterLevel); // Fills it back up to the target amount (Difference between target and current level)
     }
 }
