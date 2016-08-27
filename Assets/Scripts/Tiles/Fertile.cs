@@ -29,7 +29,5 @@ public class Fertile : Tile
 
         if (raycast.collider != null)
             _waterSource = raycast.transform.GetComponent<WaterChannel>();
-
-        Debug.Log(_waterSource.name);
     }
 }

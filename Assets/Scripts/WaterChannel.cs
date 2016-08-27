@@ -1,5 +1,6 @@
 ﻿using UnityEngine;
 using System.Collections.Generic;
+using UnityEngine.UI;
 
 public class WaterChannel : MonoBehaviour
 {
@@ -19,5 +20,7 @@ public class WaterChannel : MonoBehaviour
         if (_totalPercentage > 100) {
             Debug.LogError("The total percentage of Water entries is great than 100%");
         }
+
+        GetComponentInChildren<Text>().text = _percentageOfWaterSource + "%";
     }
 }
