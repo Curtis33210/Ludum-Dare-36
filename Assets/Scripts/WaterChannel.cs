@@ -10,6 +10,10 @@ public class WaterChannel : MonoBehaviour
     [Range(0, 100)]
     private int _percentageOfWaterSource;
 
+    public int getPercentage()
+    {
+        return _percentageOfWaterSource;
+    }
     private void Awake() {
         _totalPercentage = 0;
     }
