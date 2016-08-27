@@ -11,6 +11,12 @@ public enum GrowthStatus
 public class Plant : MonoBehaviour
 {
     private Plant _plant;
+    //***************************************************************************************************
+    //****************************************************************************************************
+    //AM I aLLowed to do this?1?!?!!?!?!?!?!?!?!!?????????????????????
+    //***************************************************************************************************
+    //****************************************************************************************************
+
     [SerializeField]
     private GrowthStatus _currentStatus;
 
@@ -33,24 +39,48 @@ public class Plant : MonoBehaviour
 
     [SerializeField]
     private int _waterRequirement;
+    //Note: Do not let this equal zero.
 
 
     private Fertile _occupiedTile;
 
+    private Plant _adjacentPlant;
+
     public void Start()
     {
 
-        var _raycast = Physics2D.Raycast(Vector2.zero, Vector2.zero);
-        if (_raycast.collider != null)
+        var _raycastFerTile = Physics2D.Raycast(Vector2.zero, Vector2.zero);
+        if (_raycastFerTile.collider != null)
         {
-            _occupiedTile = _raycast.transform.GetComponent<Fertile>();
+            _occupiedTile = _raycastFerTile.transform.GetComponent<Fertile>();
             _occupiedTile.toggleCropRotation();
             _occupiedTile.setCurrentCrop(_plant.name);
         }
         setFertilityModifier(_occupiedTile);
-        checkFerTileWaterSupply();
+        checkFerTileWaterSupply(); //Note this order of function matters.
+       
     }
-    
+    private void beanMaizeMultiplyer() //the bean maize phenomenon
+    {
+        if (_plant.name.Equals("Bean")){
+            //left
+            var _raycastMaize = Physics2D.Raycast(transform.position+transform.right *-0.5f, Vector2.zero);
+            if (_raycastMaize.collider != null)
+            {
+                _adjacentPlant = _raycastMaize.transform.GetComponent<Plant>();
+            }
+            //right
+            _raycastMaize = Physics2D.Raycast(transform.position + transform.right * 1.5f, Vector2.zero);
+            if (_raycastMaize.collider != null)
+            {
+                _adjacentPlant = _raycastMaize.transform.GetComponent<Plant>();
+            }
+            if (_adjacentPlant.name.Equals("Maize"))
+            {
+                _fertilityModifier += 0.25f;
+            }
+        }
+    }
     private void setFertilityModifier(Fertile _ferTile)
     {
         _fertilityModifier = _ferTile.getFertilityModifier();
@@ -62,15 +92,26 @@ public class Plant : MonoBehaviour
     }
 
     public bool GrowPlant(int seasonsPast) {
-        //TODO: Check the algorithm for plant growth percentage (checked and reasy Cap'n)
+        //TODO: Check the algorithm for plant growth percentage (checked and ready Cap'n)
         var percentGrown = (seasonsPast*(1+_fertilityModifier))/ _maturityTime;
 
         _totalPercentageGrown = Mathf.Clamp(_totalPercentageGrown + percentGrown, 0, 100);
 
         return _totalPercentageGrown == 100;
     }
-    public void checkFerTileWaterSupply()
+    public void checkFerTileWaterSupply() // Check for water supply Note This really needs work since multiple plants are going to take from the same source.
     {
-        _fertilityModifier *= _occupiedTile.getFertileWaterPercentage() / _waterRequirement;
+        if (_occupiedTile.getFertileWaterPercentage() / _waterRequirement > 1)
+        {
+            _fertilityModifier *= 1;
+        }
+        else if (_occupiedTile.getFertileWaterPercentage() / _waterRequirement < 0)
+        {
+            _fertilityModifier *= 0;
+        }
+        else
+        {
+            _fertilityModifier *= _occupiedTile.getFertileWaterPercentage() / _waterRequirement;
+        }
     }
 }
