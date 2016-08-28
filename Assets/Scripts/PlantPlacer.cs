@@ -36,6 +36,7 @@ public class PlantPlacer : MonoBehaviour
         }
 
         _ghostObject = Instantiate(_ghostPrefab);
+        _ghostObject.SetActive(false);
     }
 
     private void Update() {
