@@ -12,8 +12,16 @@ public class WaterChannel : MonoBehaviour
     public int TotalPercentOfWaterSource { get { return _percentageOfWaterSource; } }
 
     [SerializeField]
-    private int _currentWaterLevel;
-    
+    private float _currentWaterLevel;
+
+    [SerializeField]
+    private Text _percentageDisplay;
+
+    [SerializeField]
+    private Sprite _dryTexture;
+    [SerializeField]
+    private Sprite _filledTexture;
+
     private void Awake() {
         _totalPercentage = 0;
     }
@@ -27,25 +35,42 @@ public class WaterChannel : MonoBehaviour
 
         RefillWaterLevel();
 
-        GetComponentInChildren<Text>().text = _percentageOfWaterSource + "%";
+        _percentageDisplay = GetComponentInChildren<Text>();
+        UpdatePercentageDisplay();
     }
 
     public void RefillWaterLevel() { // Refills the channel up to where it should be. 
         // NOTE: Should this build up? So if all the water wasn't used, then let it fill up more than it should?
-        _currentWaterLevel = (int) (FindObjectOfType<LevelSettings>().WaterSourceAmount * (_percentageOfWaterSource / 100.0f));
+        _currentWaterLevel = FindObjectOfType<LevelSettings>().WaterSourceAmount * (_percentageOfWaterSource / 100.0f);
+
+        SetWaterImagesTo(_filledTexture);
     }
 
-    public int TakeWater(int amount) {
+    public float TakeWater(float amount) {
         if (amount > _currentWaterLevel) {
-            SetWaterImageToEmpty(); // This will make it so it's obvious that all the water has been used
+            SetWaterImagesTo(_dryTexture);
+            _currentWaterLevel = 0;
+            UpdatePercentageDisplay();
             return _currentWaterLevel;
         }
 
         _currentWaterLevel -= amount;
+
+        UpdatePercentageDisplay();
         return amount;
     }
 
-    private void SetWaterImageToEmpty() {   
-        // Will need a separate water image where there is no water left
+    private void SetWaterImagesTo(Sprite targetSprite) {
+        var waterTilesTransform = transform.FindChild("WaterTiles");
+
+        for (int i = 0; i < waterTilesTransform.childCount; i++) {
+            waterTilesTransform.GetChild(i).GetComponent<SpriteRenderer>().sprite = targetSprite;
+        }
+    }
+    
+    private void UpdatePercentageDisplay() {
+        var totalWater = FindObjectOfType<LevelSettings>().WaterSourceAmount * (_percentageOfWaterSource / 100.0f);
+
+        _percentageDisplay.text = ((_currentWaterLevel / totalWater) * 100) * (_percentageOfWaterSource / 100.0f) + "% Of " + _percentageOfWaterSource + "%";
     }
 }

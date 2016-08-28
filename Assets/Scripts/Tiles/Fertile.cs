@@ -35,7 +35,7 @@ public class Fertile : Tile
     private int _targetWaterAbsorbtion;
 
     [SerializeField]
-    private int _currentWaterLevel;
+    private float _currentWaterLevel;
 
     private void Awake() {
         CheckforWaterSource();
@@ -98,26 +98,23 @@ public class Fertile : Tile
 
         if (raycast.collider != null)
             _waterSource = raycast.transform.GetComponent<WaterChannel>();
-
-        Debug.Log(_waterSource);
     }
 
     private void Update() {
         if (_currentWaterLevel < _targetWaterAbsorbtion) {
-            Debug.Log("Absorbing Water");
             AbsorbWater();
         }
     }
 
-    public int WaterLevel() {
+    public float WaterLevel() {
         return _currentWaterLevel;
     }
 
-    public int GiveWaterToPlant(int amount) { // Don't like this naming. This is for plants to take water from the tile
+    public float GiveWaterToPlant(float amount) { // Don't like this naming. This is for plants to take water from the tile
         if (amount > _currentWaterLevel) {
             return _currentWaterLevel;
         }
-
+        
         _currentWaterLevel -= amount;
         return amount;
     }

@@ -31,7 +31,7 @@ public class Plant : MonoBehaviour
     //NEED TO DO!!! Plant Values
 
     [SerializeField]
-    [Range(1, Mathf.Infinity)]
+    [Range(1, 100)]
     private int _waterRequirement; // Is this taken every time the plant grows? Cause thats what im assuming
     //Note: Do not let this equal zero.
     
@@ -100,12 +100,12 @@ public class Plant : MonoBehaviour
         //    return false; // Plant did not grow
         //}
 
-        Debug.Log("Growing");
+        Debug.Log(_waterRequirement * seasonsPast);
         SetFertileFertilityModifier(_occupiedTile);
 
         UpdateWaterFertilityModifier();
 
-        _occupiedTile.GiveWaterToPlant((int) (_waterRequirement * seasonsPast));
+        _occupiedTile.GiveWaterToPlant(_waterRequirement * seasonsPast);
 
         var percentGrown = (seasonsPast*(1+_fertilityModifier))/ _maturityTime;
         
@@ -122,7 +122,7 @@ public class Plant : MonoBehaviour
         {
             _fertilityModifier *= tileWaterLevel / _waterRequirement;
         }
-        else if (_occupiedTile.GiveWaterToPlant(_waterRequirement) == 0)
+        else if (tileWaterLevel == 0)
         {
             _fertilityModifier *= 0;
         }

@@ -26,7 +26,7 @@ public class PlantManager : MonoBehaviour
 
             // As long as the game isn't paused
             for (int i = 0; i < _allActivePlants.Count; i++) {
-                _allActivePlants[i].GrowPlant(1 / _secondsBetweenSeasons);
+                _allActivePlants[i].GrowPlant(1.0f / _secondsBetweenSeasons);
             }
         }
     }
