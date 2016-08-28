@@ -108,7 +108,7 @@ public class Fertile : Tile
         }
     }
 
-    public int TakeWater(int amount) { // Don't like this naming. This is for plants to take water from the tile
+    public int GiveWaterToPlant(int amount) { // Don't like this naming. This is for plants to take water from the tile
         if (amount > _currentWaterLevel) {
             return _currentWaterLevel;
         }

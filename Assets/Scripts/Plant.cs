@@ -26,9 +26,9 @@ public class Plant : MonoBehaviour
     [SerializeField]
     private int _harvestModifier; 
     //The intrinsic worth that the plant is "worth" economically (i.e. with respect to the scoring system
-//_harvestModifier is going to need some mad tinkering depending on what value we want to put on plants
-//PS... for the mean time _harvestModifier is presumed to be some percentage above 100%.... i.e. 1.05 for +5% _harvest bonus
-//NEED TO DO!!! Plant Values
+    //_harvestModifier is going to need some mad tinkering depending on what value we want to put on plants
+    //PS... for the mean time _harvestModifier is presumed to be some percentage above 100%.... i.e. 1.05 for +5% _harvest bonus
+    //NEED TO DO!!! Plant Values
 
     [SerializeField]
     [Range(1, Mathf.Infinity)]
@@ -93,11 +93,11 @@ public class Plant : MonoBehaviour
         //TODO: Check the algorithm for plant growth percentage (checked and ready Cap'n)
         // Need to check that there is enough water for this plant to grow before actually growing it. 
 
-        if (_occupiedTile.TakeWater(_waterRequirement) < _waterRequirement) {
-            Debug.LogError("Plant did not get enough water");
-            return false; // Plant did not grow
-        }
-
+        //if (_occupiedTile.GiveWaterToPlant(_waterRequirement) < _waterRequirement) {
+        //    Debug.LogError("Plant did not get enough water");
+        //    return false; // Plant did not grow
+        //}
+        checkWaterSupply();
         var percentGrown = (seasonsPast*(1+_fertilityModifier))/ _maturityTime;
 
         _totalPercentageGrown = Mathf.Clamp(_totalPercentageGrown + percentGrown, 0, 100);
@@ -105,4 +105,15 @@ public class Plant : MonoBehaviour
         return true; // Plant did grow
     }
 
+    private void checkWaterSupply()
+    {
+        if (_occupiedTile.GiveWaterToPlant(_waterRequirement) < _waterRequirement && !(_occupiedTile.GiveWaterToPlant(_waterRequirement) < 0))
+        {
+            _fertilityModifier *= _occupiedTile.GiveWaterToPlant(_waterRequirement) / _waterRequirement;
+        }
+        else if (_occupiedTile.GiveWaterToPlant(_waterRequirement) == 0)
+        {
+            _fertilityModifier *= 0;
+        }
+    }
 }
