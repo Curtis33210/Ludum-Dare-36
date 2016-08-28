@@ -24,11 +24,17 @@ public class FollowMouse : MonoBehaviour
     }
 
     private bool IsValidPosition() {
-        var raycast = Physics2D.Raycast(transform.position + new Vector3(0.5f, 0.5f), Vector2.zero, 1, 1 << LayerMask.NameToLayer("Fertile"));
-        
-        if (raycast.collider == null || raycast.transform.GetComponent<Fertile>() == null)
-            return false;
+        var raycasts = Physics2D.RaycastAll(transform.position + new Vector3(0.5f, 0.5f), Vector2.zero, 1, 1 << LayerMask.NameToLayer("Fertile") | 1 << LayerMask.NameToLayer("Plant"));
 
-        return true;
+        bool isFertileAtPos = false;
+
+        for (int i = 0; i < raycasts.Length; i++) {
+            if (raycasts[i].collider != null && raycasts[i].transform.GetComponent<Fertile>() != null)
+                isFertileAtPos = true;
+            if (raycasts[i].collider != null && raycasts[i].transform.GetComponent<Plant>() != null)
+                return false;
+        }
+
+        return isFertileAtPos;
     }
 }

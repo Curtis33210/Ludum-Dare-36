@@ -42,7 +42,7 @@ public class Plant : MonoBehaviour
 
     public void Start()
     {
-        var _raycastFerTile = Physics2D.Raycast(transform.position + new Vector3(0.5f, 0.5f), Vector2.zero);
+        var _raycastFerTile = Physics2D.Raycast(transform.position + new Vector3(0.5f, 0.5f), Vector2.zero, 1, 1 << LayerMask.NameToLayer("Fertile"));
 
         if (_raycastFerTile.collider == null) {
             Debug.LogError("No Fertile found below plant");
