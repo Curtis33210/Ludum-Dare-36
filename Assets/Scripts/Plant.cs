@@ -49,12 +49,14 @@ public class Plant : MonoBehaviour
             return;
         }
 
-        Debug.Log(_raycastFerTile.transform.GetComponent<Fertile>());
+        //Debug.Log(_raycastFerTile.transform.GetComponent<Fertile>());
         _occupiedTile = _raycastFerTile.transform.GetComponent<Fertile>();
         _occupiedTile.toggleCropRotation();
         _occupiedTile.setCurrentCrop(this);
-        
-        setFertilityModifier(_occupiedTile);
+
+        SetFertileFertilityModifier(_occupiedTile);
+
+        FindObjectOfType<PlantManager>().AddPlant(this);
     }
 
     //private void beanMaizeMultiplyer() //the bean maize phenomenon
@@ -79,7 +81,7 @@ public class Plant : MonoBehaviour
     //    }
     //}
 
-    private void setFertilityModifier(Fertile _ferTile)
+    private void SetFertileFertilityModifier(Fertile _ferTile)
     {
         _fertilityModifier = _ferTile.getFertilityModifier();
     }
@@ -89,7 +91,7 @@ public class Plant : MonoBehaviour
         return _totalPercentageGrown * _maturityTime / (_harvestModifier - _fertilityModifier); // Probably some base multiplier and specific multipler per plant type?
     }
 
-    public bool GrowPlant(int seasonsPast) { // Returns true if plant grew, false if it didn't.
+    public bool GrowPlant(float seasonsPast) { // Returns true if plant grew, false if it didn't.
         //TODO: Check the algorithm for plant growth percentage (checked and ready Cap'n)
         // Need to check that there is enough water for this plant to grow before actually growing it. 
 
@@ -97,19 +99,28 @@ public class Plant : MonoBehaviour
         //    Debug.LogError("Plant did not get enough water");
         //    return false; // Plant did not grow
         //}
-        checkWaterSupply();
-        var percentGrown = (seasonsPast*(1+_fertilityModifier))/ _maturityTime;
 
+        Debug.Log("Growing");
+        SetFertileFertilityModifier(_occupiedTile);
+
+        UpdateWaterFertilityModifier();
+
+        _occupiedTile.GiveWaterToPlant((int) (_waterRequirement * seasonsPast));
+
+        var percentGrown = (seasonsPast*(1+_fertilityModifier))/ _maturityTime;
+        
         _totalPercentageGrown = Mathf.Clamp(_totalPercentageGrown + percentGrown, 0, 100);
 
         return true; // Plant did grow
     }
 
-    private void checkWaterSupply()
+    private void UpdateWaterFertilityModifier()
     {
-        if (_occupiedTile.GiveWaterToPlant(_waterRequirement) < _waterRequirement && !(_occupiedTile.GiveWaterToPlant(_waterRequirement) < 0))
+        var tileWaterLevel = _occupiedTile.WaterLevel();
+
+        if (tileWaterLevel < _waterRequirement && !(tileWaterLevel < 0))
         {
-            _fertilityModifier *= _occupiedTile.GiveWaterToPlant(_waterRequirement) / _waterRequirement;
+            _fertilityModifier *= tileWaterLevel / _waterRequirement;
         }
         else if (_occupiedTile.GiveWaterToPlant(_waterRequirement) == 0)
         {

@@ -44,8 +44,8 @@ public class Fertile : Tile
     private void Start() {
         _statusModifiers = new int[(int)FertileStatus.Length];
         //checkCropRotation();
-        _fertilityModifier = (_statusModifiers[(int)FertileStatus.BurntStatus] * 0.25f + _statusModifiers[(int)FertileStatus.HoeStatus] * 0.05f + _statusModifiers[(int)FertileStatus.BurntStatus] * 0.10f +
-                            _statusModifiers[(int)FertileStatus.IrrigationStatus] * 0.15f + _statusModifiers[(int)FertileStatus.AqueductStatus] * 0.20f)* _statusModifiers[(int)FertileStatus.AqueductStatus];
+        _fertilityModifier = _statusModifiers[(int)FertileStatus.BurntStatus] * 0.25f + _statusModifiers[(int)FertileStatus.HoeStatus] * 0.05f + _statusModifiers[(int)FertileStatus.BurntStatus] * 0.10f +
+                            _statusModifiers[(int)FertileStatus.IrrigationStatus] * 0.15f + _statusModifiers[(int)FertileStatus.AqueductStatus] * 0.20f;
 
        // string  test = "hoeStatus";
        // int value = 1;
@@ -102,10 +102,15 @@ public class Fertile : Tile
         Debug.Log(_waterSource);
     }
 
-    private void Updater() {
+    private void Update() {
         if (_currentWaterLevel < _targetWaterAbsorbtion) {
+            Debug.Log("Absorbing Water");
             AbsorbWater();
         }
+    }
+
+    public int WaterLevel() {
+        return _currentWaterLevel;
     }
 
     public int GiveWaterToPlant(int amount) { // Don't like this naming. This is for plants to take water from the tile
@@ -118,6 +123,6 @@ public class Fertile : Tile
     }
 
     public void AbsorbWater() { // This is for the fertile to absorb water from the water source
-        _waterSource.TakeWater(_targetWaterAbsorbtion - _currentWaterLevel); // Fills it back up to the target amount (Difference between target and current level)
+        _currentWaterLevel += _waterSource.TakeWater(_targetWaterAbsorbtion - _currentWaterLevel); // Fills it back up to the target amount (Difference between target and current level)
     }
 }

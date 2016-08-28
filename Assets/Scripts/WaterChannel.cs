@@ -32,7 +32,7 @@ public class WaterChannel : MonoBehaviour
 
     public void RefillWaterLevel() { // Refills the channel up to where it should be. 
         // NOTE: Should this build up? So if all the water wasn't used, then let it fill up more than it should?
-        _currentWaterLevel = FindObjectOfType<LevelSettings>().WaterSourceAmount * (1 / _percentageOfWaterSource);
+        _currentWaterLevel = (int) (FindObjectOfType<LevelSettings>().WaterSourceAmount * (_percentageOfWaterSource / 100.0f));
     }
 
     public int TakeWater(int amount) {

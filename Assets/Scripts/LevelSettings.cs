@@ -15,6 +15,11 @@ public class LevelSettings : MonoBehaviour
     [SerializeField]
     private HarvestingToolModifiers _harvestingTool;
 
+    [SerializeField]
+    private int _maxLabourForce;
+
+    private int _currentLabourForce;
+
     private enum PlantingToolmodifiers
     {
         None,
